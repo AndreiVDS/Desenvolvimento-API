@@ -1,55 +1,59 @@
 package com.andrei.tarefas_api;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.andrei.tarefas_api.dto.TarefaRequest;
+import com.andrei.tarefas_api.dto.TarefaResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/tarefas")
+@Tag(name = "Tarefas", description = "CRUD de tarefas")
 public class TarefaController {
 
-    @Autowired
-    private TarefaRepository tarefaRepository;
+    private final TarefaService service;
 
-    // Criar uma nova tarefa
-    @PostMapping
-    public Tarefa criarTarefa(@RequestBody Tarefa tarefa) {
-        return tarefaRepository.save(tarefa);
+    public TarefaController(TarefaService service) {
+        this.service = service;
     }
 
-    // Obter todas as tarefas
     @GetMapping
-    public List<Tarefa> obterTodasTarefas() {
-        return tarefaRepository.findAll();
+    @Operation(summary = "Lista todas as tarefas")
+    public List<TarefaResponse> listar() {
+        return service.listar();
     }
 
-    // Obter uma tarefa pelo ID
     @GetMapping("/{id}")
-    public Optional<Tarefa> obterTarefaPorId(@PathVariable Long id) {
-        return tarefaRepository.findById(id);
+    @Operation(summary = "Busca uma tarefa pelo id")
+    public TarefaResponse buscar(@PathVariable Long id) {
+        return service.buscar(id);
     }
 
-    // Atualizar uma tarefa existente
+    @PostMapping
+    @Operation(summary = "Cria uma tarefa")
+    public ResponseEntity<TarefaResponse> criar(@Valid @RequestBody TarefaRequest req) {
+        TarefaResponse criada = service.criar(req);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}").buildAndExpand(criada.id()).toUri();
+        return ResponseEntity.created(location).body(criada);
+    }
+
     @PutMapping("/{id}")
-    public Tarefa atualizarTarefa(@PathVariable Long id, @RequestBody Tarefa tarefaAtualizada) {
-        return tarefaRepository.findById(id)
-                .map(tarefa -> {
-                    tarefa.setNome(tarefaAtualizada.getNome());
-                    tarefa.setDataEntrega(tarefaAtualizada.getDataEntrega());
-                    tarefa.setResponsavel(tarefaAtualizada.getResponsavel());
-                    return tarefaRepository.save(tarefa);
-                })
-                .orElseGet(() -> {
-                    tarefaAtualizada.setId(id);
-                    return tarefaRepository.save(tarefaAtualizada);
-                });
+    @Operation(summary = "Atualiza uma tarefa existente")
+    public TarefaResponse atualizar(@PathVariable Long id, @Valid @RequestBody TarefaRequest req) {
+        return service.atualizar(id, req);
     }
 
-    // Deletar uma tarefa
     @DeleteMapping("/{id}")
-    public void deletarTarefa(@PathVariable Long id) {
-        tarefaRepository.deleteById(id);
+    @ResponseStatus(org.springframework.http.HttpStatus.NO_CONTENT)
+    @Operation(summary = "Remove uma tarefa")
+    public void deletar(@PathVariable Long id) {
+        service.deletar(id);
     }
 }
