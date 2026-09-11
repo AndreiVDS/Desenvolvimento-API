@@ -1,5 +1,11 @@
 # Tarefas API
 
+[![CI](https://github.com/AndreiVDS/Desenvolvimento-API/actions/workflows/ci.yml/badge.svg)](https://github.com/AndreiVDS/Desenvolvimento-API/actions/workflows/ci.yml)
+![Java 17](https://img.shields.io/badge/Java-17-007396?logo=openjdk&logoColor=white)
+![Spring Boot 3.2](https://img.shields.io/badge/Spring_Boot-3.2-6DB33F?logo=springboot&logoColor=white)
+![tests](https://img.shields.io/badge/tests-8_passing-6e9f18)
+![license](https://img.shields.io/badge/license-MIT-blue)
+
 A small **REST API for managing tasks**, built with Spring Boot. Structured the way a real
 service is: request/response DTOs, bean validation, a service layer, proper HTTP semantics,
 a global error handler, tests at each layer, OpenAPI docs and a one-command Docker setup.
